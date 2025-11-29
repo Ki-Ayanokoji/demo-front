@@ -2,17 +2,13 @@ import axios from "axios";
 
 // API URLs
 const API_URL_LOCAL = "http://localhost:3000";
-const API_URL_PRODUCTION = "https://aluminium-backend.onrender.com/";
+const API_URL_PRODUCTION = "https://demo-back-5qe0.onrender.com";
 
 const isDevelopment = import.meta.env.DEV;
 
 export const api = axios.create({
   baseURL: isDevelopment ? API_URL_LOCAL : API_URL_PRODUCTION,
 });
-
-
-
-
 
 // Delete receipt voucher by id
 export async function deleteReceiptVoucher(id: string | number) {
@@ -21,7 +17,10 @@ export async function deleteReceiptVoucher(id: string | number) {
 }
 
 // Update receipt voucher by id
-export async function updateReceiptVoucher(id: string | number, patch: Partial<ReceiptVoucherPayload>) {
+export async function updateReceiptVoucher(
+  id: string | number,
+  patch: Partial<ReceiptVoucherPayload>
+) {
   const { data } = await api.put(`/reciept-voucher/${id}`, patch);
   return data;
 }
@@ -70,20 +69,32 @@ export async function createPaymentVoucher(payload: PaymentVoucherPayload) {
 }
 
 // Get payment voucher by voucherNumber
-export async function getPaymentVoucherByNumber(voucherNumber: string | number) {
-  const { data } = await api.get(`/payment-voucher/${encodeURIComponent(voucherNumber)}`);
+export async function getPaymentVoucherByNumber(
+  voucherNumber: string | number
+) {
+  const { data } = await api.get(
+    `/payment-voucher/${encodeURIComponent(voucherNumber)}`
+  );
   return data;
 }
 
 // Update payment voucher by voucherNumber
-export async function updatePaymentVoucher(voucherNumber: string | number, patch: Partial<PaymentVoucherPayload>) {
-  const { data } = await api.put(`/payment-voucher/${encodeURIComponent(voucherNumber)}`, patch);
+export async function updatePaymentVoucher(
+  voucherNumber: string | number,
+  patch: Partial<PaymentVoucherPayload>
+) {
+  const { data } = await api.put(
+    `/payment-voucher/${encodeURIComponent(voucherNumber)}`,
+    patch
+  );
   return data;
 }
 
 // Delete payment voucher by voucherNumber
 export async function deletePaymentVoucher(voucherNumber: string | number) {
-  const { data } = await api.delete(`/payment-voucher/${encodeURIComponent(voucherNumber)}`);
+  const { data } = await api.delete(
+    `/payment-voucher/${encodeURIComponent(voucherNumber)}`
+  );
   return data;
 }
 // --- Purchase Return endpoints (by returnNumber) ---
@@ -129,7 +140,8 @@ export async function deletePurchaseReturnByNumber(returnNumber: string) {
   // Fallback: fetch all and delete by id if needed
   const returns = await getPurchaseReturns();
   const ret = (returns || []).find(
-    (r: PurchaseReturnRecordPayload) => String(r.id ?? r._id) === String(returnNumber)
+    (r: PurchaseReturnRecordPayload) =>
+      String(r.id ?? r._id) === String(returnNumber)
   );
   if (!ret) throw new Error(`Purchase return not found: ${returnNumber}`);
   const id = ret._id ?? ret.id;
@@ -169,7 +181,9 @@ export async function getPurchaseInvoices() {
 }
 
 // Get purchase invoice by purchaseInvoiceNumber
-export async function getPurchaseInvoiceByNumber(purchaseInvoiceNumber: string) {
+export async function getPurchaseInvoiceByNumber(
+  purchaseInvoiceNumber: string
+) {
   try {
     const { data } = await api.get(
       `/purchase-invoice/${encodeURIComponent(purchaseInvoiceNumber)}`
@@ -187,7 +201,8 @@ export async function getPurchaseInvoiceByNumber(purchaseInvoiceNumber: string) 
   // Fallback: fetch all and find
   const { data } = await api.get("/purchase-invoice");
   return (data || []).find(
-    (p: { purchaseInvoiceNumber?: string | number }) => String(p.purchaseInvoiceNumber) === String(purchaseInvoiceNumber)
+    (p: { purchaseInvoiceNumber?: string | number }) =>
+      String(p.purchaseInvoiceNumber) === String(purchaseInvoiceNumber)
   );
 }
 
@@ -215,15 +230,21 @@ export async function updatePurchaseInvoiceByNumber(
   }
   // Fallback: fetch all and update by id if needed
   const p = await getPurchaseInvoiceByNumber(purchaseInvoiceNumber);
-  if (!p) throw new Error(`Purchase invoice not found: ${purchaseInvoiceNumber}`);
+  if (!p)
+    throw new Error(`Purchase invoice not found: ${purchaseInvoiceNumber}`);
   const invoice = p as { _id?: string; id?: string };
   const id = invoice._id ?? invoice.id;
-  if (!id) throw new Error(`Purchase invoice has no valid ID: ${purchaseInvoiceNumber}`);
+  if (!id)
+    throw new Error(
+      `Purchase invoice has no valid ID: ${purchaseInvoiceNumber}`
+    );
   return updatePurchaseInvoice(id, patch);
 }
 
 // Delete purchase invoice by purchaseInvoiceNumber
-export async function deletePurchaseInvoiceByNumber(purchaseInvoiceNumber: string) {
+export async function deletePurchaseInvoiceByNumber(
+  purchaseInvoiceNumber: string
+) {
   try {
     const { data } = await api.delete(
       `/purchase-invoice/${encodeURIComponent(purchaseInvoiceNumber)}`
@@ -236,10 +257,14 @@ export async function deletePurchaseInvoiceByNumber(purchaseInvoiceNumber: strin
   }
   // Fallback: fetch all and delete by id if needed
   const p = await getPurchaseInvoiceByNumber(purchaseInvoiceNumber);
-  if (!p) throw new Error(`Purchase invoice not found: ${purchaseInvoiceNumber}`);
+  if (!p)
+    throw new Error(`Purchase invoice not found: ${purchaseInvoiceNumber}`);
   const invoice = p as { _id?: string; id?: string };
   const id = invoice._id ?? invoice.id;
-  if (!id) throw new Error(`Purchase invoice has no valid ID: ${purchaseInvoiceNumber}`);
+  if (!id)
+    throw new Error(
+      `Purchase invoice has no valid ID: ${purchaseInvoiceNumber}`
+    );
   return deletePurchaseInvoice(id);
 }
 
@@ -257,21 +282,17 @@ export async function deletePurchaseInvoice(id: string | number) {
   return data;
 }
 
-
-
 // Dev-only request logger to help diagnose duplicate-request storms.
 // This logs method+url and a stack trace so we can see which component/effect
 // initiated the request. Disabled in production to avoid leaking internals.
 
 // test
 
-
 // Get all purchase orders
 export async function getPurchases() {
   const { data } = await api.get<PurchaseRecordPayload[]>("/purchaseorder");
   return data;
 }
-
 
 // --- Purchase Order by poNumber endpoints ---
 // Get purchase order by poNumber
@@ -293,7 +314,10 @@ export async function getPurchaseByNumber(poNumber: string) {
   // Fallback: fetch all and find
   const { data } = await api.get<PurchaseRecordPayload[]>("/purchaseorder");
   return (data || []).find(
-    (p: PurchaseRecordPayload) => String((p as PurchaseRecordPayload & { poNumber?: string | number }).poNumber) === String(poNumber)
+    (p: PurchaseRecordPayload) =>
+      String(
+        (p as PurchaseRecordPayload & { poNumber?: string | number }).poNumber
+      ) === String(poNumber)
   );
 }
 
@@ -392,7 +416,7 @@ export interface QuotationRecordPayload {
   totalGrossAmount?: number;
   totalNetAmount?: number;
   discount?: number;
-  amount?: number
+  amount?: number;
   totalDiscount?: number;
   quotationDate?: string;
   customer?: CustomerPayload[];
@@ -415,7 +439,10 @@ export interface DraftRecord {
 export async function getDraftByKey(key: string, userId?: string) {
   try {
     const opts = userId ? { headers: { "x-user-id": userId } } : undefined;
-    const { data } = await api.get<DraftRecord>(`/drafts/key/${encodeURIComponent(key)}`, opts);
+    const { data } = await api.get<DraftRecord>(
+      `/drafts/key/${encodeURIComponent(key)}`,
+      opts
+    );
     return data;
   } catch (err: unknown) {
     const error = err as { response?: { status?: number } };
@@ -427,13 +454,24 @@ export async function getDraftByKey(key: string, userId?: string) {
   }
 }
 
-export async function createDraft(payload: { key: string; data: any; userId?: string; title?: string }) {
-  const opts = payload.userId ? { headers: { "x-user-id": payload.userId } } : undefined;
+export async function createDraft(payload: {
+  key: string;
+  data: any;
+  userId?: string;
+  title?: string;
+}) {
+  const opts = payload.userId
+    ? { headers: { "x-user-id": payload.userId } }
+    : undefined;
   const { data } = await api.post<DraftRecord>(`/drafts`, payload, opts);
   return data;
 }
 
-export async function updateDraft(id: string, patch: { data?: any; title?: string }, userId?: string) {
+export async function updateDraft(
+  id: string,
+  patch: { data?: any; title?: string },
+  userId?: string
+) {
   const opts = userId ? { headers: { "x-user-id": userId } } : undefined;
   const { data } = await api.put<DraftRecord>(`/drafts/${id}`, patch, opts);
   return data;
@@ -457,7 +495,6 @@ export type PurchaseLineItem = {
 };
 
 export type PurchaseLineItems = PurchaseLineItem[];
-
 
 export interface PurchaseRecordPayload {
   poNumber: string;
@@ -508,7 +545,13 @@ export interface ExpensePayload {
   expenseNumber?: string;
   amount: number;
   date?: string | Date;
-  categoryType?: "Rent" | "Utilities" | "Transportation" | "Salary" | "Maintenance" | "Other";
+  categoryType?:
+    | "Rent"
+    | "Utilities"
+    | "Transportation"
+    | "Salary"
+    | "Maintenance"
+    | "Other";
   description?: string;
   reference?: string;
   paymentMethod?: paymentMethod;
@@ -574,7 +617,6 @@ export async function getQuotations() {
   return data;
 }
 
-
 export async function getGRNs() {
   const { data } = await api.get<GRNRecordPayload[]>("/grns");
   return data;
@@ -608,7 +650,10 @@ export async function createColor(payload: ColorPayload) {
   return data;
 }
 
-export async function updateColor(id: string | number, payload: Partial<ColorPayload>) {
+export async function updateColor(
+  id: string | number,
+  payload: Partial<ColorPayload>
+) {
   const { data } = await api.put<ColorPayload>(`/colors/${id}`, payload);
   return data;
 }
